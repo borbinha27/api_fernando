@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta API</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h5>Dados do Usuário</h5>
+                    </div>
+                    <div class="card-body" id="dados-container">
+                        <p>Carregando...</p>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h6>Adicionar Novo Usuário</h6>
+                    </div>
+                    <div class="card-body">
+                        <form id="userForm">
+                            <div class="mb-3">
+                                <label for="nome" class="form-label">Nome:</label>
+                                <input type="text" class="form-control" id="nome" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="idade" class="form-label">Idade:</label>
+                                <input type="number" class="form-control" id="idade" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="profissao" class="form-label">Profissão:</label>
+                                <input type="text" class="form-control" id="profissao" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Adicionar Usuário</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://localhost:3000";
+
+        async function loadData() {
+            const response = await fetch(API_URL);
+            const data = await response.json();
+
+            let html = '';
+            data.forEach(usuario => {
+                html += `
+                    <div class="mb-3 p-3 border rounded">
+                        <p><strong>ID:</strong> ${usuario._id}</p>
+                        <p><strong>Nome:</strong> ${usuario.nome}</p>
+                        <p><strong>Idade:</strong> ${usuario.idade}</p>
+                        <p><strong>Profissão:</strong> ${usuario.profissao}</p>
+                    </div>
+                `;
+            });
+
+            document.getElementById('dados-container').innerHTML = html;
+        }
+
+        async function addUser(userData) {
+            const response = await fetch(`${API_URL}/usuario`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(userData)
+            });
+
+            if (response.ok) {
+                loadData();
+                document.getElementById('userForm').reset();
+                alert('Usuário adicionado com sucesso!');
+            }
+        }
+
+        document.getElementById('userForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                nome: document.getElementById('nome').value,
+                idade: parseInt(document.getElementById('idade').value),
+                profissao: document.getElementById('profissao').value
+            };
+            
+            addUser(formData);
+        });
+
+        loadData();
+    </script>
+</body>
+
+</html>
